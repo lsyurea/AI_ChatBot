@@ -38,4 +38,6 @@ Backend/env
 Frontend/.next
 Frontend/node_modules
 .env
+data
+venv
 __pycache__
