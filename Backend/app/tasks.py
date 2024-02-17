@@ -41,16 +41,51 @@ async def create_conversation(convo: ConversationPOST):
 
 @task_router.get("/conversations/{id}")
 async def get_conversation(id: int):
-    return {"message": f"Get conversation with id {id}"}
+    try:
+        conversation = await ConversationFull.get(id=id)
+    except Conversation.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return conversation
 
-@task_router.put("/conversations/{id}")
-async def update_conversation(id: int):
-    return {"message": f"Update conversation with id {id}"}
+@task_router.put("/conversations/{id}", response_model=ConversationPUT)
+async def update_conversation(id: int, convo: ConversationPUT):
+    # update if exists, else create
+    try:
+        conversation = await ConversationFull.get(id=id)
+        # update
+        try:
+            await conversation.update(name=convo.name, params=convo.params).apply()
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+    except Conversation.DoesNotExist:
+        # create
+        try:
+            conversation = await Conversation.create(name=convo.name, params=convo.params)
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
 
 @task_router.delete("/conversations/{id}")
 async def delete_conversation(id: int):
-    return {"message": f"Delete conversation with id {id}"}
+    try:
+        conversation = await ConversationFull.get(id=id)
+    except Conversation.DoesNotExist:
+        raise HTTPException(status_code=404, detail="Conversation not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+    try:
+        await conversation.delete()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    return {"message": "Conversation deleted successfully"}
 
 @task_router.post("/queries")
 async def create_query():
-    return {"message": "Create a query"}
+    # Todo: Implement this with OpenAI API
+    return {"message": "This is a python server that controls LLM Chat interactions."}
