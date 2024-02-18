@@ -26,8 +26,8 @@ The api routes are specified by the openapi schema. You can access the routes vi
 If docker is not working as expected, go to the debugging section. With the debugging section, you can access the api routes via <http://localhost:8000>
 Once the localhost is started, you can access the api routes via <http://localhost:8000/docs>
 This is an example of how the api routes are accessed using postman.
-![example](<docs/example.png>)
-![example](<docs/exampletwo.png>)
+![example](<Backend/docs/example.png>)
+![example](<Backend/docs/exampletwo.png>)
 
 ## Usage
 
