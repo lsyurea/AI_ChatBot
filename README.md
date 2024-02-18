@@ -9,6 +9,26 @@ This project has a front-end folder and a back-end folder. The front-end folder 
 
 I will use NextJS with tailwindcss to build the frontend of the chatbot.
 
+## Installation for the frontend
+
+First, run the development server:
+
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+
+## Demo
+
+![Demo](<Frontend/docs/chat.png>)
+
 ## Backend
 
 I will use Python >= 3.8, FastAPI, Pydantic Beanie and GPT 3 engine to build the backend of the chatbot.
