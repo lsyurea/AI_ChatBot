@@ -1,10 +1,7 @@
 from typing import List, Optional
 from beanie import Document 
 from enum import Enum
-from typing import Optional
-from beanie import Document 
 from pydantic import UUID4, Field
-from enum import Enum
 
 # Represents the schema for the mongo database
 

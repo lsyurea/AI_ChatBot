@@ -1,3 +1,4 @@
+from ai import getResponseFromOpenAI
 from fastapi import APIRouter, HTTPException
 from models import Conversation, ConversationFull, ConversationPOST, ConversationPUT, Prompt, APIError
 from pydantic import ValidationError
@@ -85,7 +86,6 @@ async def delete_conversation(id: int):
         raise HTTPException(status_code=500, detail=str(e))
     return {"message": "Conversation deleted successfully"}
 
-@task_router.post("/queries")
-async def create_query():
-    # Todo: Implement this with OpenAI API
-    return {"message": "This is a python server that controls LLM Chat interactions."}
+@task_router.post("/queries/")
+async def create_query(convo: ConversationFull):
+    return getResponseFromOpenAI(convo)
