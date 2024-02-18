@@ -31,19 +31,21 @@ export function Sidebar() {
   const [activeLink, setActiveLink] = useState('Settings');
 
   const links = linksMockdata.map((link) => (
-    <Link
-      className={`block no-underline rounded-tr-[var(--mantine-radius-md)] rounded-br-[var(--mantine-radius-md)] px-12 py-8 color-[light-dark(var(--mantine-color-gray-7),
-        var(--mantine-color-dark-0))] hover:bg-[light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5))] transition-colors
-        ${link === activeLink ? 'bg-[var(--mantine-color-blue-light)] color-[var(--mantine-color-blue-light-color)]' : ''}`}
-      href="#"
-      onClick={(event) => {
-        event.preventDefault();
-        setActiveLink(link);
-      }}
+    <div 
       key={link}
-    >
-      {link}
-    </Link>
+      onClick={(event) => {
+      event.preventDefault();
+      setActiveLink(link);
+    }}>
+      <Link
+        className={`block no-underline rounded-tr-[var(--mantine-radius-md)] rounded-br-[var(--mantine-radius-md)] px-12 py-8 color-[light-dark(var(--mantine-color-gray-7),
+          var(--mantine-color-dark-0))] hover:bg-[light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5))] transition-colors
+          ${link === activeLink ? 'bg-[var(--mantine-color-blue-light)] color-[var(--mantine-color-blue-light-color)]' : ''}`}
+        href={`/${link.toLowerCase()}`}
+      >
+        {link}
+      </Link>
+    </div>
   ));
 
   return (
