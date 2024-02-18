@@ -111,6 +111,7 @@ async def delete_conversation(id: int):
         raise InternalServerError()
     return {"message": "Conversation deleted successfully"}
 
+
 @task_router.post("/queries/")
 async def create_query(convo: dict, status_code=201):
     
