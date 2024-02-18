@@ -10,5 +10,5 @@ async def init_db():
 
     # use it if you just want to run docker compose up -d
     # client = motor.motor_asyncio.AsyncIOMotorClient("mongodb://ai_db:27017")
-    # initialising schema does not work down below even after referring to documentation
-    await beanie.init_beanie(database=client.db_name, document_models=[Conversation, Prompt, APIError, ConversationFull, ConversationPOST, ConversationPUT])
+    
+    await beanie.init_beanie(database=client.db_name, document_models=[ConversationFull])

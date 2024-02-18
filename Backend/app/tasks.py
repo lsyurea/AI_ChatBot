@@ -1,7 +1,8 @@
 from ai import getResponseFromOpenAI
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter
 from models import Conversation, ConversationFull, ConversationPOST, ConversationPUT, Prompt, APIError
-from pydantic import ValidationError
+from errors import InvalidParamError, ResourceNotFoundError, UnableToCreateResourceError, InternalServerError
+import uuid
 
 task_router = APIRouter()
 
@@ -10,82 +11,115 @@ async def read_root():
     return {"message": "This is a python server that controls LLM Chat interactions."}
 
 
-@task_router.get("/conversations")
-async def get_all_conversations():
-    print("executing get_all_conversations")
+# Start of conversation
+@task_router.post("/conversations/", status_code=201)
+async def create_conversation(convo: dict):
+    # check if the input is valid
     try:
-        conversations = await ConversationFull.all().to_list()
+        _ = ConversationPOST(**convo)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return conversations
-
-
-@task_router.post("/conversations/", response_model=ConversationPOST, status_code=201)
-async def create_conversation(convo: ConversationPOST):
-    # Validate input using Pydantic model
-    print("executing create_conversation")
-    try:
-        _ = ConversationPOST(**convo.dict())
-    except ValidationError as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        raise InvalidParamError()
     
     # Process the validated input and create the conversation
     try:
-        # Replace this with your actual conversation creation logic
-        conversation = await Conversation.create(name=convo.name, params=convo.params)
+        # fill up the missing fields
+        convo['id'] = str(uuid.uuid4())
+        convo['tokens'] = 0
+        if not 'params' in convo:
+            convo['params'] = {}
+        convo['messages'] = []
+        convo_instance = ConversationFull(**convo)
+
+        # save to the database
+        await convo_instance.insert()
+
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerError()
     
-    # Return the created conversation
-    return conversation
+    return {"id": convo_instance.id}
 
-
-@task_router.get("/conversations/{id}")
-async def get_conversation(id: int):
+@task_router.get("/conversations", status_code=200)
+async def get_all_conversations():
     try:
-        conversation = await ConversationFull.get(id=id)
-    except Conversation.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        conversations = await ConversationFull.find_all().to_list()
+        return list(map(lambda x: Conversation(id=str(x.id), name=x.name, params=x.params, tokens=x.tokens), conversations))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return conversation
+        raise ResourceNotFoundError()
 
-@task_router.put("/conversations/{id}", response_model=ConversationPUT)
-async def update_conversation(id: int, convo: ConversationPUT):
-    # update if exists, else create
+
+@task_router.put("/conversations/{id}", status_code=204)
+async def update_conversation(id: int, convo: dict):
+    # check if the input is valid
     try:
-        conversation = await ConversationFull.get(id=id)
+        _ = ConversationPUT(**convo)
+    except Exception as e:
+        raise InvalidParamError()
+
+    # update to conversationPost if exists, else create
+    try:
+        convo_get = await ConversationFull.find_one(id=id)
+        print(convo_get)
         # update
         try:
-            await conversation.update(name=convo.name, params=convo.params).apply()
+            # update the missing fields
+            if 'name' in convo:
+                convo_get.name = convo.name
+            if 'params' in convo:
+                convo_get.params = convo.params
+            # save to the database
+            await convo_get.save()
+
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            raise InternalServerError()
+        
     except Conversation.DoesNotExist:
         # create
         try:
             conversation = await Conversation.create(name=convo.name, params=convo.params)
         except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+            raise ResourceNotFoundError()
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerError()
+    return convo
 
 
-@task_router.delete("/conversations/{id}")
+@task_router.get("/conversations/{id}", status_code=200)
+async def get_conversation(id: int):
+    try:
+        convo_instance = await ConversationFull.get(id=id)
+    except convo_instance.DoesNotExist:
+        raise ResourceNotFoundError()
+    except Exception as e:
+        raise InternalServerError()
+    return convo_instance
+
+
+
+@task_router.delete("/conversations/{id}", status_code=204)
 async def delete_conversation(id: int):
     try:
         conversation = await ConversationFull.get(id=id)
     except Conversation.DoesNotExist:
-        raise HTTPException(status_code=404, detail="Conversation not found")
+        raise ResourceNotFoundError()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerError()
     
     try:
         await conversation.delete()
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        raise InternalServerError()
     return {"message": "Conversation deleted successfully"}
 
 @task_router.post("/queries/")
-async def create_query(convo: ConversationFull):
-    return getResponseFromOpenAI(convo)
+async def create_query(convo: dict, status_code=201):
+    
+    # check if the input is valid
+    try:
+        convo_updated = ConversationFull(**convo)
+        try:
+            return getResponseFromOpenAI(convo_updated)
+        except Exception as e:
+            raise UnableToCreateResourceError()
+    except Exception as e:
+        raise InvalidParamError()
