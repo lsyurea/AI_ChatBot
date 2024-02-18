@@ -1,8 +1,8 @@
 # Installation
 
 Make sure that you are currently on the BACKEND directory.
-Run docker compose build.
-Then run docker compose up -d to start the application in detached mode.
+Run ```docker compose build```.
+Then run ```docker compose up -d``` to start the application in detached mode.
 
 ## api routes
 
@@ -33,4 +33,4 @@ Alternatively, you can run the following command to start the application:
 
 ## Closing the application
 
-Run docker compose down to stop the application.
+Run ```docker compose down``` to stop the application.
