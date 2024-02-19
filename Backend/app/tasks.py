@@ -76,7 +76,7 @@ async def update_conversation(id: UUID4, convo: dict):
                 convo_get.params = convo['params']
             # save to the database
             await convo_get.save()
-            
+
         except Exception as e:
             raise InternalServerError()
         
@@ -114,13 +114,38 @@ async def delete_conversation(id: UUID4):
         raise InternalServerError()
 
 @task_router.post("/queries/")
-async def create_query(convo: dict, status_code=201):
+async def create_query(id: str, convo: dict, status_code=201):
     
+    try:
+        convo_cur = await ConversationFull.get(id)
+        if not convo_cur:
+            raise ResourceNotFoundError()
+    except Exception as e:
+        if e.__class__.__name__ == "ResourceNotFoundError":
+            raise ResourceNotFoundError()
+        raise InternalServerError()
+
     # check if the input is valid
     try:
-        convo_updated = ConversationFull(**convo)
+        convo_updated = Prompt(**convo)
+        
         try:
-            return getResponseFromOpenAI(convo_updated)
+            res = getResponseFromOpenAI(convo_updated)
+            # Update the conversation
+            if not res:
+                raise UnableToCreateResourceError()
+            print("starting update to database")
+            msg = res.choices[0].message
+            print("created message")
+            convo_cur.tokens += res.usage.total_tokens
+            print("updated tokens")
+            convo_cur.messages.append(Prompt(**{"role": msg.role, "content": msg.content}))
+            print("appended message")
+            await convo_cur.save()
+            print("saved convo")
+            return {"id": id}
+
+
         except Exception as e:
             raise UnableToCreateResourceError()
     except Exception as e:
