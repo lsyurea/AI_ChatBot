@@ -134,15 +134,10 @@ async def create_query(id: str, convo: dict, status_code=201):
             # Update the conversation
             if not res:
                 raise UnableToCreateResourceError()
-            print("starting update to database")
             msg = res.choices[0].message
-            print("created message")
             convo_cur.tokens += res.usage.total_tokens
-            print("updated tokens")
             convo_cur.messages.append(Prompt(**{"role": msg.role, "content": msg.content}))
-            print("appended message")
             await convo_cur.save()
-            print("saved convo")
             return {"id": id}
 
 
