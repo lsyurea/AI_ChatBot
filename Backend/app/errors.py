@@ -11,7 +11,6 @@ class ResourceNotFoundError(HTTPException):
 
 class UnableToCreateResourceError(HTTPException):
     def __init__(self):
-
         super().__init__(status_code=422, detail=APIError(code=422, message="Unable to create resource").dict())
 
 class InternalServerError(HTTPException):

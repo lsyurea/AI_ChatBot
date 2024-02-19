@@ -1,5 +1,6 @@
 from ai import getResponseFromOpenAI
 from fastapi import APIRouter
+from pydantic import UUID4
 from models import Conversation, ConversationFull, ConversationPOST, ConversationPUT, Prompt, APIError
 from errors import InvalidParamError, ResourceNotFoundError, UnableToCreateResourceError, InternalServerError
 import uuid
@@ -48,7 +49,7 @@ async def get_all_conversations():
 
 
 @task_router.put("/conversations/{id}", status_code=204)
-async def update_conversation(id: int, convo: dict):
+async def update_conversation(id: UUID4, convo: dict):
     # check if the input is valid
     try:
         _ = ConversationPUT(**convo)
@@ -56,61 +57,61 @@ async def update_conversation(id: int, convo: dict):
         raise InvalidParamError()
 
     # update to conversationPost if exists, else create
+
     try:
-        convo_get = await ConversationFull.find_one(id=id)
-        print(convo_get)
+        convo_get = await ConversationFull.find_one(ConversationFull.id == id)
+        if not convo_get:
+            try: 
+                convo_get = await ConversationFull.create(id=str(uuid.uuid4()) , name=convo.name, params=convo.params, tokens=0, messages=[])
+                return convo_get
+            except Exception as e:
+                raise ResourceNotFoundError()
+
         # update
         try:
             # update the missing fields
             if 'name' in convo:
-                convo_get.name = convo.name
+                convo_get.name = convo['name']
             if 'params' in convo:
-                convo_get.params = convo.params
+                convo_get.params = convo['params']
             # save to the database
             await convo_get.save()
-
+            
         except Exception as e:
             raise InternalServerError()
         
-    except Conversation.DoesNotExist:
-        # create
-        try:
-            conversation = await Conversation.create(name=convo.name, params=convo.params)
-        except Exception as e:
-            raise ResourceNotFoundError()
-
     except Exception as e:
         raise InternalServerError()
     return convo
 
 
 @task_router.get("/conversations/{id}", status_code=200)
-async def get_conversation(id: int):
+async def get_conversation(id: UUID4):
     try:
-        convo_instance = await ConversationFull.get(id=id)
-    except convo_instance.DoesNotExist:
-        raise ResourceNotFoundError()
+        convo_instance = await ConversationFull.get(id)
+        if not convo_instance:
+            raise ResourceNotFoundError()
     except Exception as e:
+        if e.__class__.__name__ == "ResourceNotFoundError":
+            raise ResourceNotFoundError()
         raise InternalServerError()
     return convo_instance
 
-
-
 @task_router.delete("/conversations/{id}", status_code=204)
-async def delete_conversation(id: int):
+async def delete_conversation(id: UUID4):
     try:
-        conversation = await ConversationFull.get(id=id)
-    except Conversation.DoesNotExist:
-        raise ResourceNotFoundError()
+        conversation = await ConversationFull.get(id)
+        if not conversation:
+            raise ResourceNotFoundError()
     except Exception as e:
+        if e.__class__.__name__ == "ResourceNotFoundError":
+            raise ResourceNotFoundError()
         raise InternalServerError()
     
     try:
         await conversation.delete()
     except Exception as e:
         raise InternalServerError()
-    return {"message": "Conversation deleted successfully"}
-
 
 @task_router.post("/queries/")
 async def create_query(convo: dict, status_code=201):
