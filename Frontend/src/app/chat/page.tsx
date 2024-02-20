@@ -1,8 +1,12 @@
-import { ChatForm } from "@/components/formComponents/chatform";
+import { CreateChatForm } from "@/components/formComponents/createchatform";
+import { statusCheck } from "@/utils/api";
 
-export default function Chat() {
 
+export default async function Chat() {
     return (
-        <ChatForm />
+        <div className="flex w-full flex-col justify-center items-center p-10">
+            <h1>Please create a new Chat</h1>
+            <CreateChatForm />
+        </div>
     );
 }
