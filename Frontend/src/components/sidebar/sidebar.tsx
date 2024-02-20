@@ -1,34 +1,20 @@
 "use client";
 import { useState } from 'react';
 import Link from 'next/link';
-import { UnstyledButton, Tooltip, Title, rem } from '@mantine/core';
-import {
-  IconHome2,
-  IconGauge,
-  IconDeviceDesktopAnalytics,
-  IconFingerprint,
-  IconCalendarStats,
-  IconUser,
-  IconSettings,
-} from '@tabler/icons-react';
-
-const mainLinksMockdata = [
-  { icon: IconHome2, label: 'Home' },
-  { icon: IconGauge, label: 'Dashboard' },
-  { icon: IconDeviceDesktopAnalytics, label: 'Analytics' },
-  { icon: IconCalendarStats, label: 'Releases' },
-  { icon: IconUser, label: 'Account' },
-
-];
+import { Title } from '@mantine/core';
+import { usePathname } from 'next/navigation';
 
 const linksMockdata = [
-  'Dashboard',
-  'Chat',
-  'Account',
+  'dashboard',
+  'chat',
+  'account',
 ];
 
 export function Sidebar() {
-  const [activeLink, setActiveLink] = useState('Settings');
+
+  // get the path and replace to title format
+  const path = usePathname().substring(1);
+  const [activeLink, setActiveLink] = useState(path);
 
   const links = linksMockdata.map((link) => (
     <div 
@@ -43,20 +29,26 @@ export function Sidebar() {
           ${link === activeLink ? 'bg-[var(--mantine-color-blue-light)] color-[var(--mantine-color-blue-light-color)]' : ''}`}
         href={`/${link.toLowerCase()}`}
       >
-        {link}
+        {link.replace(
+          /\w\S*/g,
+          function(txt) {
+            return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+          }
+        )}
       </Link>
     </div>
   ));
 
   return (
-    <nav className="bg-light-dark(white, dark-6) h-[750px] w-[300px] flex flex-col border-r border-solid border-gray-300 dark:border-dark-4">
+    <nav className="bg-light-dark(white, dark-6) h-screen w-[300px] flex flex-col border-r border-solid border-gray-300 dark:border-dark-4">
       <div className={`flex flex-1`}>
 
         <div className={`flex-1 bg-[light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-6))]`}>
-          <Title order={4} className="font-greycliff-cf var(--mantine-font-family) mb-8 bg-body p-4 pt-[18px] h-[60px] border-b border-solid border-gray-300 dark:border-dark-7">
-            AIBot
-          </Title>
-
+          <Link href={`/`}>
+            <Title order={4} className="font-greycliff-cf var(--mantine-font-family) mb-8 bg-body p-4 pt-[18px] h-[60px] border-b border-solid border-gray-300 dark:border-dark-7">
+              QueryAI
+            </Title>
+          </Link>
           {links}
         </div>
       </div>
