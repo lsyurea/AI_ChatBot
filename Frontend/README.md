@@ -19,4 +19,10 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ## Demo
 
+### Our Chat
+
 ![Demo](<docs/chat.png>)
+
+## Our Dashboard
+
+![Demo](<docs/dashboard.png>)
