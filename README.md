@@ -29,11 +29,11 @@ Open [http://localhost:3000](http://localhost:3000) with your browser to see the
 
 ### Our Chat
 
-![Demo](<docs/chat.png>)
+![Demo](<Frontend/docs/chat.png>)
 
 ## Our Dashboard
 
-![Demo](<docs/dashboard.png>)
+![Demo](<Frontend/docs/dashboard.png>)
 
 ## Backend
 
