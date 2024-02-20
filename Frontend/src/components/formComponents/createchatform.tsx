@@ -11,8 +11,8 @@ export const CreateChatForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         // Do something with the name
-        const {id} :{id : string} = await createNewConversation({name});
-        router.push('/chat/{id}');
+        const data = await createNewConversation({name});
+        router.push(`/chat/${data?.id}`);
     };
 
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
