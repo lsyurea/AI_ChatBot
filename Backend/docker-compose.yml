@@ -1,6 +1,8 @@
 version: '3.8'
 services:
   app:
+    env_file:
+    - .env
     container_name: ai_app
     build: .
     ports:
