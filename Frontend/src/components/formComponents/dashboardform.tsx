@@ -17,7 +17,6 @@ export const DashboardForm = ({convo} : DashboardFormProps) => {
     const router = useRouter();
     const [convos, setConvos] = useState(convo);
     async function deleteChat(id: string) {
-        router.push('/dashboard')
         await deleteConversation(id);
         const newConvo = await fetchChatSummary();
         setConvos(newConvo);
@@ -29,19 +28,20 @@ export const DashboardForm = ({convo} : DashboardFormProps) => {
             {
                 convos?.map((c) => {
                     return (
-                        <Link key={c.id} 
-                            href={`/chat/${c.id}`}
-                            className="flex w-full relative flex-col justify-center items-center p-10 border-cyan-900 border-2 rounded-xl hover:bg-cyan-900"
-                            replace
+                        <div key={c.id} 
+                            className="flex w-full relative flex-col justify-center items-center border-cyan-900 border-2 rounded-xl hover:bg-cyan-900"
                             >
-                            <div className="absolute left-0 top-0 p-2 border-red-300 border-2 rounded-tl-xl rounded-br-xl hover:bg-red-600"
+                            <div className="absolute cursor-pointer left-0 top-0 p-2 border-red-300 border-2 rounded-tl-xl rounded-br-xl hover:bg-red-600"
                                 onClick={() => deleteChat(c.id)}
                             >
                                 X
                             </div>
-                            <h1>{c.name}</h1>
-                            <p>Number of tokens: {c.tokens}</p>
-                        </Link>
+                            <Link href={`/chat/${c.id}`} className="h-[150px] w-full flex flex-col items-center justify-center">
+                                <h1>{c.name}</h1>
+                                <p>Number of tokens: {c.tokens}</p>
+                            </Link>
+                            
+                        </div>
                     );
                 })
             }
