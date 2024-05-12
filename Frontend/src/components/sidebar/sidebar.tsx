@@ -28,7 +28,7 @@ export function Sidebar() {
           var(--mantine-color-dark-0))] hover:bg-[light-dark(var(--mantine-color-gray-0), var(--mantine-color-dark-5))] transition-colors
           ${link === activeLink ? 'bg-[var(--mantine-color-blue-light)] color-[var(--mantine-color-blue-light-color)]' : ''}`}
         href={`/${link.toLowerCase()}`}
-        replacedashboarda
+        replace
       >
         {link.replace(
           /\w\S*/g,

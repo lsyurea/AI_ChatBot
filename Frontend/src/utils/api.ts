@@ -1,4 +1,4 @@
-const backEndAPI: string = "http://localhost:80";
+const backEndAPI: string = "http://ai_app:80";
 
 // This function sends a POST request to the backend API with the user's input
 export const fetchResponseFromUserInput = async (input: string, id: string) => {

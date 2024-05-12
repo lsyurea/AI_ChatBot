@@ -11,6 +11,7 @@ task_router = APIRouter()
 async def read_root():
     return {"message": "This is a python server that controls LLM Chat interactions."}
 
+# TODO: To implement APIError as models within the parameters for automatic check
 
 # Start of conversation
 @task_router.post("/conversations/", status_code=201)

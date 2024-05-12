@@ -6,7 +6,7 @@ from db import init_db
 app = FastAPI()
 
 origins = [
-    "http://localhost:3000",
+    "http://ai_frontend:3000",
 ]
 
 app.add_middleware(

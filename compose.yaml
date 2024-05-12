@@ -1,0 +1,18 @@
+services:
+  backend:
+    extends: 
+      file: ./Backend/docker-compose.yml
+      service: app
+    
+  db:
+    extends:
+      file: ./Backend/docker-compose.yml
+      service: db
+  
+  frontend:
+    build: ./Frontend
+    container_name: ai_frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
